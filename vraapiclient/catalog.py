@@ -304,6 +304,40 @@ class ConsumerClient(object):
         elif show == 'json':
             return items['content']
 
+    def getEntitledCatalogItemViews(self, show='table', limit=20):
+        """
+		Function that will return all entitled catalog items for the current user.
+        Parameters:
+            show = return data as a table or json object
+    		limit = The number of entries per page.
+		"""
+
+        host = self.host
+        token = self.token
+
+        url = 'https://{host}/catalog-service/api/consumer/entitledCatalogItemViews?limit={limit}&$orderby=name%20asc'.format(
+            host=host, limit=limit)
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': token
+        }
+        r = requests.get(url=url, headers=headers, verify=False)
+        checkResponse(r)
+        items = r.json()
+
+        if show == 'table':
+            table = PrettyTable(['Id', 'Name'])
+
+            for i in items['content']:
+                table.add_row([i['catalogItemId'],
+                               i['name']])
+
+            print table
+
+        elif show == 'json':
+            return items['content']
+
     def getEntitledCatalogItemsAsDict(self):
         content = self.getEntitledCatalogItems(show="json")
         items = [element["catalogItem"] for element in content]
