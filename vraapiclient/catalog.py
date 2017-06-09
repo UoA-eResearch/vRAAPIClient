@@ -304,6 +304,27 @@ class ConsumerClient(object):
         elif show == 'json':
             return items['content']
 
+    def getEntitledCatalogItemsRequestsTemplate(self, id):
+        """
+		Function that will return json object of request form for the catalog item blueprint
+        Parameters:
+            id = id of vRA Catalog Item
+		"""
+
+        host = self.host
+        token = self.token
+
+        url = 'https://{host}/catalog-service/api/consumer/entitledCatalogItems/{id}/requests/template'.format(
+            host=host, id=id)
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': token
+        }
+        r = requests.get(url=url, headers=headers, verify=False)
+        checkResponse(r)
+        return r.json()
+
     def getEntitledCatalogItemViews(self, show='table', limit=20):
         """
 		Function that will return all entitled catalog items for the current user.
@@ -463,6 +484,33 @@ class ConsumerClient(object):
         resource = r.json()
 
         return resource['content']
+
+    def requestEntitledCatalogItemsById(self, id, payload):
+        """
+		Function that will submit a request based on payload.
+		payload = json body (example in request.json)
+		Parameters:
+			payload = JSON request body.
+		"""
+
+        host = self.host
+        token = self.token
+
+        url = 'https://{host}/catalog-service/api/consumer/entitledCatalogItems/{id}/requests'.format(host=host, id=id)
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': token
+        }
+        r = requests.post(url=url,
+                          data=json.dumps(payload),
+                          headers=headers,
+                          verify=False)
+        checkResponse(r)
+
+        reqId = r.headers['location'].split('/')[7]
+
+        return reqId
 
     def requestResource(self, payload):
         """
